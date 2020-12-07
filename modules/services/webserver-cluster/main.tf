@@ -1,11 +1,19 @@
+locals {
+  http_port = 80
+  any_port = 0
+  any_protocol = -1
+  tcp_protocol = "tcp"
+  all_ips = ["0.0.0.0/0"]
+}
+
 resource "aws_security_group" "instance" {
   name = "${var.cluster_name}instance"
   ingress = [{
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = local.all_ips
     description      = "this is an example"
     from_port        = var.server_port
-    ipv6_cidr_blocks = ["0.0.0.0/0"]
-    protocol         = "tcp"
+    ipv6_cidr_blocks = local.all_ips
+    protocol         = local.tcp_protocol
     self             = false
     to_port          = var.server_port
     prefix_list_ids  = []
@@ -60,7 +68,7 @@ resource "aws_lb" "example" {
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.example.arn
-  port              = 80
+  port              = local.http_port
   protocol          = "HTTP"
   default_action {
     type = "fixed-response"
@@ -75,26 +83,26 @@ resource "aws_lb_listener" "http" {
 resource "aws_security_group" "alb" {
   name = "${var.cluster_name}-alb"
   ingress = [{
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = local.all_ips
     description      = "asd"
-    from_port        = 80
-    ipv6_cidr_blocks = ["0.0.0.0/0"]
+    from_port        = local.http_port
+    ipv6_cidr_blocks = local.all_ips
     prefix_list_ids  = []
-    protocol         = "tcp"
+    protocol         = local.tcp_protocol
     security_groups  = ["sg-93ba2be2"]
     self             = false
-    to_port          = 80
+    to_port          = local.http_port
   }]
   egress = [{
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = local.all_ips
     description      = "asd"
-    from_port        = 0
-    ipv6_cidr_blocks = ["0.0.0.0/0"]
+    from_port        = local.any_port
+    ipv6_cidr_blocks = local.all_ips
     prefix_list_ids  = []
-    protocol         = -1
+    protocol         = local.any_protocol
     security_groups  = ["sg-93ba2be2"]
     self             = false
-    to_port          = 0
+    to_port          = local.any_port
   }]
 }
 
