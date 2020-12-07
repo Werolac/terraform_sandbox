@@ -1,5 +1,5 @@
 resource "aws_security_group" "instance" {
-  name = "terraform-example-instance"
+  name = "${var.cluster_name}instance"
   ingress = [{
     cidr_blocks      = ["0.0.0.0/0"]
     description      = "this is an example"
@@ -37,7 +37,7 @@ resource "aws_autoscaling_group" "example" {
 
   tag {
     key                 = "Name"
-    value               = "terraform-asg-example"
+    value               = var.cluster_name
     propagate_at_launch = true
   }
 
@@ -52,7 +52,7 @@ data "aws_subnet_ids" "default" {
 }
 
 resource "aws_lb" "example" {
-  name               = "terraform-asg-example"
+  name               = var.cluster_name
   load_balancer_type = "application"
   subnets            = data.aws_subnet_ids.default.ids
   security_groups    = [aws_security_group.alb.id]
@@ -73,7 +73,7 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_security_group" "alb" {
-  name = "terraform-example-alb"
+  name = "${var.cluster_name}-alb"
   ingress = [{
     cidr_blocks      = ["0.0.0.0/0"]
     description      = "asd"
@@ -99,7 +99,7 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_lb_target_group" "asg" {
-  name     = "terraform-asg-example"
+  name     = var.cluster_name
   port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
