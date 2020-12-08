@@ -9,5 +9,6 @@ module "webserver_cluster" {
     Owner      = "team-foo"
     DeployedBy = "terraform"
   }
-  enable_autoscaling = true
+  enable_autoscaling   = true
+  enable_new_user_data = true
 }
