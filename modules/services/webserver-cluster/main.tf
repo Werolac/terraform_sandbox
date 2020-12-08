@@ -1,9 +1,9 @@
 locals {
-  http_port = 80
-  any_port = 0
+  http_port    = 80
+  any_port     = 0
   any_protocol = -1
   tcp_protocol = "tcp"
-  all_ips = ["0.0.0.0/0"]
+  all_ips      = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group" "instance" {
@@ -47,6 +47,15 @@ resource "aws_autoscaling_group" "example" {
     key                 = "Name"
     value               = var.cluster_name
     propagate_at_launch = true
+  }
+
+  dynamic "tag" {
+    for_each = var.custom_tags
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 
 }
