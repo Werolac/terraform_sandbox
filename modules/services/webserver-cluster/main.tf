@@ -23,14 +23,10 @@ resource "aws_security_group" "instance" {
 }
 
 resource "aws_launch_configuration" "example" {
-  image_id        = "ami-0c55b159cbfafe1f0"
-  instance_type   = "t2.micro"
+  image_id        = var.ami
+  instance_type   = var.instance_type
   security_groups = [aws_security_group.instance.id]
-  user_data = (
-    length(data.template_file.user_data[*]) > 0
-    ? data.template_file.user_data[0].rendered
-    : data.template_file.user_data_new[0].rendered
-  )
+  user_data       = data.template_file.user_data.rendered
   lifecycle {
     create_before_destroy = true
   }
@@ -38,6 +34,7 @@ resource "aws_launch_configuration" "example" {
 }
 
 resource "aws_autoscaling_group" "example" {
+  name                 = "${var.cluster_name}-${aws_launch_configuration.example.name}"
   launch_configuration = aws_launch_configuration.example.name
   vpc_zone_identifier  = data.aws_subnet_ids.default.ids
 
@@ -47,6 +44,11 @@ resource "aws_autoscaling_group" "example" {
   min_size = 2
   max_size = 10
 
+  min_elb_capacity = 2
+
+  lifecycle {
+    create_before_destroy = true
+  }
   tag {
     key                 = "Name"
     value               = var.cluster_name
@@ -152,17 +154,10 @@ resource "aws_lb_listener_rule" "asg" {
 }
 
 data "template_file" "user_data" {
-  count    = var.enable_new_user_data ? 0 : 1
   template = file("user_data.sh")
   vars = {
     server_port = var.server_port
-  }
-}
-data "template_file" "user_data_new" {
-  count    = var.enable_new_user_data ? 1 : 0
-  template = file("new_user_data.sh")
-  vars = {
-    server_port = var.server_port
+    server_text = var.server_text
   }
 }
 
