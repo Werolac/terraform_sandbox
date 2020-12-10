@@ -1,3 +1,12 @@
+locals {
+  http_port    = 80
+  any_port     = 0
+  any_protocol = -1
+  tcp_protocol = "tcp"
+  all_ips      = ["0.0.0.0/0"]
+}
+
+
 resource "aws_launch_configuration" "example" {
   image_id        = var.ami
   instance_type   = var.instance_type
