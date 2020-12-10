@@ -16,7 +16,7 @@ data "aws_subnet_ids" "default" {
 }
 
 resource "aws_lb_target_group" "asg" {
-  name     = var.cluster_name
+  name     = "hello-world-${var.environment}"
   port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
@@ -33,7 +33,7 @@ resource "aws_lb_target_group" "asg" {
 }
 
 resource "aws_lb_listener_rule" "asg" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = module.alb.alb_http_listener_arn
   priority     = 100
   condition {
     path_pattern {
@@ -53,4 +53,23 @@ data "template_file" "user_data" {
     server_port = var.server_port
     server_text = var.server_text
   }
+}
+
+module "asg" {
+  source             = "D:/terraform_sandbox/modules/cluster/asg-rolling-deploy"
+  cluster_name       = "hello-world-${var.environment}"
+  ami                = var.ami
+  user_data          = data.template_file.user_data.rendered
+  instance_type      = var.instance_type
+  enable_autoscaling = var.enable_autoscaling
+  subnet_ids         = data.aws_subnet_ids.default.ids
+  target_group_arn   = [aws_lb_target_group.asg.arn]
+  health_check_type  = "ELB"
+  custom_tags        = var.custom_tags
+}
+
+module "alb" {
+  source     = "D:/terraform_sandbox/modules/networking/alb"
+  alb_name   = "hello-wolrd-${var.environment}"
+  subnet_ids = data.aws_subnet_ids.default.ids
 }
