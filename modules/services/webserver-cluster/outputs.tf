@@ -7,8 +7,3 @@ output "asg_name" {
   value       = aws_autoscaling_group.example.name
   description = "The Name of the Auto Scaling Group"
 }
-
-output "instance_security_group_id" {
-  value       = module.asg.instance_security_group_id
-  description = "The ID of the EC2 Instance Security Group"
-}
