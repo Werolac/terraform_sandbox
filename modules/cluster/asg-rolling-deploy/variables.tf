@@ -28,9 +28,31 @@ variable "custom_tags" {
   default     = {}
 }
 
-
 variable "server_text" {
   description = "The text the web server should return"
   default     = "Hello, World"
   type        = string
+}
+
+variable "subnet_ids" {
+  description = "The subnet ids to deploy to"
+  type        = list(string)
+}
+
+variable "target_group_arns" {
+  description = "the arns of elb target groups in which to register instances"
+  type        = list(string)
+  default     = []
+}
+
+variable "health_check_type" {
+  description = "the type of health chechk to perform. Must be one of: ec2 elb"
+  type        = string
+  default     = "EC2"
+}
+
+variable "user_data" {
+  description = "The user data script to run in each instances at boot"
+  type        = string
+  default     = ""
 }
