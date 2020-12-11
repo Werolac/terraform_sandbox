@@ -36,7 +36,7 @@ data "aws_subnet_ids" "default" {
 
 resource "aws_lb_target_group" "asg" {
   name     = "hello-world-${var.environment}"
-  port     = var.server_ports
+  port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
 
