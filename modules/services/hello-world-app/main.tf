@@ -63,7 +63,7 @@ module "asg" {
   instance_type      = var.instance_type
   enable_autoscaling = var.enable_autoscaling
   subnet_ids         = data.aws_subnet_ids.default.ids
-  target_group_arn   = [aws_lb_target_group.asg.arn]
+  target_group_arns  = [aws_lb_target_group.asg.arn]
   health_check_type  = "ELB"
   custom_tags        = var.custom_tags
 }

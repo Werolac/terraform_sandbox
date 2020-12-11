@@ -1,3 +1,11 @@
+locals {
+  http_port    = 80
+  any_port     = 0
+  any_protocol = -1
+  tcp_protocol = "tcp"
+  all_ips      = ["0.0.0.0/0"]
+}
+
 resource "aws_lb" "example" {
   name               = var.alb_name
   load_balancer_type = "application"
