@@ -6,6 +6,25 @@ locals {
   all_ips      = ["0.0.0.0/0"]
 }
 
+module "asg" {
+  source             = "D:/terraform_sandbox/modules/cluster/asg-rolling-deploy"
+  cluster_name       = "hello-world-${var.environment}"
+  ami                = var.ami
+  user_data          = data.template_file.user_data.rendered
+  instance_type      = var.instance_type
+  enable_autoscaling = var.enable_autoscaling
+  subnet_ids         = data.aws_subnet_ids.default.ids
+  target_group_arns  = [aws_lb_target_group.asg.arn]
+  health_check_type  = "ELB"
+  custom_tags        = var.custom_tags
+}
+
+module "alb" {
+  source     = "D:/terraform_sandbox/modules/networking/alb"
+  alb_name   = "hello-wolrd-${var.environment}"
+  subnet_ids = data.aws_subnet_ids.default.ids
+}
+
 
 data "aws_vpc" "default" {
   default = true
@@ -17,7 +36,7 @@ data "aws_subnet_ids" "default" {
 
 resource "aws_lb_target_group" "asg" {
   name     = "hello-world-${var.environment}"
-  port     = var.server_port
+  port     = var.server_ports
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
 
@@ -53,23 +72,4 @@ data "template_file" "user_data" {
     server_port = var.server_port
     server_text = var.server_text
   }
-}
-
-module "asg" {
-  source             = "D:/terraform_sandbox/modules/cluster/asg-rolling-deploy"
-  cluster_name       = "hello-world-${var.environment}"
-  ami                = var.ami
-  user_data          = data.template_file.user_data.rendered
-  instance_type      = var.instance_type
-  enable_autoscaling = var.enable_autoscaling
-  subnet_ids         = data.aws_subnet_ids.default.ids
-  target_group_arns  = [aws_lb_target_group.asg.arn]
-  health_check_type  = "ELB"
-  custom_tags        = var.custom_tags
-}
-
-module "alb" {
-  source     = "D:/terraform_sandbox/modules/networking/alb"
-  alb_name   = "hello-wolrd-${var.environment}"
-  subnet_ids = data.aws_subnet_ids.default.ids
 }

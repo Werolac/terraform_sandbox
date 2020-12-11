@@ -4,7 +4,7 @@ provider "aws" {
 
 module "hello_world_app" {
   //source = "D:/terraform_sandbox/modules/services/hello-world-app"
-  source       = "github.com/Werolac/terraform_sandbox"
+  source       = "github.com/Werolac/terraform_sandbox/modules/services/hello-world-app"
   ami          = "ami-0c55b159cbfafe1f0"
   server_text  = "New server text"
   cluster_name = "webserver-stage"
